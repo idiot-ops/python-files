@@ -1,0 +1,154 @@
+
+import random
+
+def printRules():
+    print("""
+    The Game of Knerzel
+
+    This is a turn-taking dice game for two players. 
+    "Knerzel" is the German word for the crusty end of a loaf of bread.
+
+    During each round, each player starts with a whole loaf, 12 slices of bread.
+    The goal is to end each turn with the smallest non-zero number of slices.
+
+    A player begins their turn by rolling a six-sided die. 
+    The value of the dice roll is subtracted from the number of slices.
+    As long as some slices remain, the player may choose to roll again.
+    If all the slices are gone, the Knerzel is lost and the turn is over.
+
+    During each round, the player with the higher total score goes first. 
+    If the players are tied, a player is chosen at random.
+
+    After both players have taken a turn, their turn scores are compared.
+    The player with the lowest non-zero turn score earns that many points 
+    towards their total score. If the turn scores are tied, neither player
+    earns any points.
+
+    The game ends when at least one player has 12 or more total points.
+    The player with the higher score wins. The game may not end in a tie.
+    """)
+
+def startingPlayer(player1Score, player2Score):
+    """Return the player with the higher score, or a randomly chosen player
+    if the scores are tied.
+
+    Parameters:
+        player1Score, a non-negative integer
+        player2Score, a non-negative integer
+
+    Return value: either 1 or 2, representing the starting player.
+    """
+    if player1Score > player2Score:
+        return 1
+    elif player2Score > player1Score:
+        return 2
+    else:
+        return random.choice([1, 2])
+
+def rollAgain():
+    """Prompt the user to enter 'y' for yes or 'n' for no until a valid 
+    answer is given.
+
+    Return value: True if the user answers 'y', False if the answer is 'n'
+    """
+    while True:
+        answer = input("Do you want to roll again? (y/n): ").lower()
+        if answer == 'y':
+            return True
+        elif answer == 'n':
+            return False
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
+def takeTurn(playerName):
+    """Play one turn as described in the rules of the game.
+
+    Parameter: playerName, a string
+
+    Return value: the turn points, an integer between 0 and 12 (inclusive)
+    """
+    total_breads = 12
+    print(f"{playerName}, it's your turn. You start with a whole loaf (12 slices).")
+    
+    while total_breads > 0:
+        roll_number = random.randint(1, 6)
+        total_breads -= roll_number
+        if total_breads < 0:
+            total_breads = 0
+        print(f"You rolled a {roll_number}. You have {total_breads} slices left.")
+        
+        if total_breads > 0:
+            if not rollAgain():
+                break
+
+    return total_breads
+
+def roundWinner(player1Points, player2Points):
+    """Determine which player won this round according to the rules of the game.
+
+    Parameters:
+        player1Points, player2Points: non-negative integers
+
+    Return value: 0 if the round is a tie
+                  1 if player 1 wins the round
+                  2 if player 2 wins the round
+    """
+    if player1Points > 0 and (player1Points < player2Points or player2Points == 0):
+        return 1
+    elif player2Points > 0 and (player2Points < player1Points or player1Points == 0):
+        return 2
+    else:
+        return 0
+
+def playGame():
+    """Plays a complete game according to the given rules."""
+    
+    p1score = 0
+    p2score = 0
+    round_number = 1
+   
+    player1 = input("Player 1, what's your name? ")
+    player2 = input("Player 2, what's your name? ")
+    print(f"Hello, {player1} and {player2}. Let's play Knerzel!")
+
+    print("-" * 60)
+    while p1score < 12 and p2score < 12:
+        print(f"ROUND {round_number}")
+        player_start = startingPlayer(p1score, p2score)
+        if player_start == 1:
+            print(f"{player1} goes first.")
+            turn1 = takeTurn(player1)
+            turn2 = takeTurn(player2)
+        else:
+            print(f"{player2} goes first.")
+            turn2 = takeTurn(player2)
+            turn1 = takeTurn(player1)
+        
+        print(f"Round {round_number} results --- {player1}: {turn1}, {player2}: {turn2}")
+        winner = roundWinner(turn1, turn2)
+        if winner == 0:
+            print("No one wins, it's a tie.")
+        elif winner == 1:
+            p1score += turn1
+            print(f"{player1} earns {turn1} points.")
+        else:
+            p2score += turn2
+            print(f"{player2} earns {turn2} points.")
+     
+        print("-" * 60)
+        print(f"Total points after Round {round_number} --- {player1}: {p1score}, {player2}: {p2score}")
+        print("-" * 60)
+        
+        round_number += 1
+        
+    if p1score > p2score:
+        print(f"Congratulations, {player1}! You won the game!")
+    elif p2score > p1score:
+        print(f"Congratulations, {player2}! You won the game!")
+        
+def main():
+    printRules()
+    playGame()
+
+if __name__ == '__main__':
+    main()
